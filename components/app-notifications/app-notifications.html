@@ -1,0 +1,176 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`app-notifications`
+Web component for using the notifications API.
+
+@demo demo/index.html
+-->
+
+<dom-module id="app-notifications">
+  <script>
+    Polymer({
+      is: 'app-notifications',
+      properties: {
+        /**
+         * Whether notification functionality is available on the platform.
+         */
+        available: {
+          type: Boolean,
+          notify: true,
+          readOnly: true
+        },
+        /**
+         * Whether notifications have been allowed by the user..
+         */
+        hasPermission: {
+          type: Boolean,
+          notify: true,
+          readOnly: true
+        }
+      },
+
+      ready: function() {
+        if (window.Notification) {
+          this._setAvailable(true);
+          this._setPermission(Notification.permission);
+        } else {
+          this._setAvailable(false);
+        }
+      },
+
+      /**
+       * Have the platform ask the user for permission to show notifications if necessary.
+       */
+      requestPermission: function(onResult) {
+        if (this.available) {
+          Notification.requestPermission((function(result) {
+            this._setPermission(result);
+            onResult && onResult(result);
+            this.fire('permission', result);
+          }.bind(this)));
+        } else {
+          console.warn('Notifications are not available.');
+        }
+      },
+
+      /**
+       * Show a notification. Only one notification per tag (`options.tag`) is shown at a time.
+       * Permission will be requested if not already granted.
+       * @param {string} title The notification title.
+       * @param {object} options The options object passed to the Notification constructor.
+       * @param {number} duration The time in milliseconds to show the notification.
+       *  A duration of 0 (default) means do not auto-close. A notification may also
+       *  be closed by the underlying platform.
+       * @param {function} onShow called when the notification is shown.
+       * @param {function} onClick called when the notification is clicked.
+       * @param {function} onClose called when the notification is closed.
+       * @param {function} onError called when the notification dispatches an
+       *  error event or if an exception is encountered creating the Notification.
+       */
+      show: function(title, options, duration, onShow, onClick, onClose, onError) {
+        if (this.hasPermission) {
+          return this._showNotification(title, options, duration, onShow, onClick, onClose, onError);
+        } else {
+          this.requestPermission(function() {
+            if (this.hasPermission) {
+              this._showNotification(title, options, duration, onShow, onClick, onClose, onError);
+            }
+          }.bind(this));
+        }
+      },
+
+      _showNotification: function(title, options, duration, onShow, onClick, onClose, onError) {
+        try {
+          var n = new Notification(title, options);
+
+          n.addEventListener('show', function(e) {
+            onShow && onShow(e, n);
+            this.fire('show', n);
+          }.bind(this));
+
+          n.addEventListener('click', function(e) {
+            onClick && onClick(e, n);
+            this.fire('click', n);
+          }.bind(this));
+
+          n.addEventListener('close', function(e) {
+            if (options && options.tag && this._tagged[options.tag]) {
+              this._tagged[options.tag] = null;
+            }
+            onClose && onClose(e, n);
+            this.fire('close', n);
+          }.bind(this));
+
+          n.addEventListener('error', function(e) {
+            onError && onError(e, n);
+            this.fire('error', n);
+          }.bind(this));
+
+          // Show one notification per tag at one time.
+          this._tagged = this._tagged || {};
+          if (options && options.tag) {
+            if (this._tagged[options.tag]) {
+              this._tagged[options.tag].close();
+              this._tagged[options.tag] = null;
+            }
+            this._tagged[options.tag] = n;
+          }
+
+          if (duration) {
+            setTimeout(n.close.bind(n), duration);
+          }
+          return n;
+        } catch (error) {
+          console.error('Error creating notification.', error);
+          onError && onError(error);
+          this.fire('error', error);
+        }
+      },
+
+      _setPermission: function(permission) {
+        if (permission === 'granted') {
+          this._setHasPermission(true);
+        } else if (permission === 'denied') {
+          this._setHasPermission(false);
+        }
+      }
+    });
+
+    /**
+     * Fired the user responds to the platform's permission request.
+     * @event permission
+     * @param {string} result Either 'granted' or 'denied'
+     */
+
+    /**
+     * Fired when any of the created notifications are shown.
+     * @event show
+     * @param {event} e The show event.
+     * @param {Notification} n The notification that was shown.
+     */
+
+    /**
+     * Fired when any of the created notifications are clicked.
+     * @event click
+     * @param {event} e The click event.
+     * @param {Notification} n The notification that was clicked.
+     */
+
+    /**
+     * Fired when any of the created notifications are closed.
+     * @event close
+     * @param {event} e The close event.
+     * @param {Notification} n The notification that was closed.
+     */
+
+    /**
+     * Fired when any of the created notifications dispatch the 'error' event,
+     * or if creating the notification causes an exception.
+     * @event error
+     * @param {event} e The error event.
+     * @param {object} n-or-error The notification that dispatched an error, or
+     *  the exception that was thrown.
+     */
+  </script>
+</dom-module>
