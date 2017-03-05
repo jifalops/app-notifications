@@ -16,10 +16,10 @@ bower install --save app-notifications
 <!--
 ```
 <custom-element-demo>
-  <template is="dom-bind">
+  <template>
     <script src="../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="app-notifications.html">
-    <next-code-block></next-code-block>   
+    <next-code-block></next-code-block>
   </template>
 </custom-element-demo>
 ```
@@ -27,10 +27,33 @@ bower install --save app-notifications
 
 ```html
 <app-notifications id="notifications"></app-notifications>
-Title: <input value="{{notification.title::input}}"/>
-Options: <textarea>{{notification.options::input}}</textarea>
-Duration (ms): <input value="{{notification.duration::input}}"/>
-<paper-button raised on-tap="_showNotification">Show Notification</paper-button>
+Title:<br/>
+<input id="title" value="title"/><br/>
+Options:<br/>
+<textarea id="options" rows="3" cols="30">
+{"tag": "app", "body": "body", "icon": "icon.png"}
+</textarea><br/>
+Duration (ms):<br/>
+<input id="duration" value="0"/><br/>
+<button onclick="_showNotification();">Show Notification</button>
+Last event: <span id="feedback"></span>
+<script>
+  var notifications = document.getElementById('notifications');
+  var title = document.getElementById('title');
+  var options = document.getElementById('options');
+  var duration = document.getElementById('duration');
+  var feedback = document.getElementById('feedback');
+  _showNotification = function() {
+    notifications.show(
+      title.value,
+      JSON.parse(options.value),
+      duration.value,
+      function(e, n) { feedback.innerHTML = 'Notification shown'; },
+      function(e, n) { feedback.innerHTML = 'Notification clicked'; },
+      function(e, n) { feedback.innerHTML = 'Notification closed'; },
+      function(e, n) { feedback.innerHTML = 'Notification error'; });
+  }
+</script>
 ```
 
 Full demo:
