@@ -31,7 +31,7 @@ Title:<br/>
 <input id="title" value="title"/><br/>
 Options:<br/>
 <textarea id="options" rows="3" cols="30">
-{"tag": "app", "body": "body", "icon": "icon.png"}
+{"tag": "app", "body": "body", "icon": "demo/icon.png"}
 </textarea><br/>
 Duration (ms):<br/>
 <input id="duration" value="0"/><br/>
