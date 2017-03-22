@@ -21,16 +21,17 @@ Web component for using the notifications API.
           readOnly: true
         },
         /**
-         * Whether notifications have been allowed by the user..
+         * Whether notifications have been allowed by the user.
          */
         hasPermission: {
           type: Boolean,
           notify: true,
+          value: null,
           readOnly: true
         }
       },
 
-      ready: function() {
+      attached: function() {
         if (window.Notification) {
           this._setAvailable(true);
           this._setPermission(Notification.permission);
