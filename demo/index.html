@@ -15,8 +15,10 @@
     <link rel="import" href="../../paper-button/paper-button.html">
     <link rel="import" href="../app-notifications.html">
 
-    <style is="custom-style" include="demo-pages-shared-styles">
-    </style>
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+      </style>
+    </custom-style>
   </head>
   <body>
     <div class="vertical-section-container centered">
@@ -33,10 +35,10 @@
           <paper-input label="Duration (ms)" value="{{notification.duration}}"></paper-input>
           <div>Platform support: [[available]]</div>
           <div>Permission state: [[hasPermission]]</div>
-          <paper-button raised on-tap="_requestPermission">Request Permission</paper-button>
-          <paper-button raised on-tap="_showNotification">Show Notification</paper-button>
-          <paper-button raised on-tap="_showNotificationDelayed">Show Delayed 3s</paper-button>
-          <paper-button raised on-tap="_showNotificationError">Notification Error</paper-button>
+          <paper-button raised on-click="_requestPermission">Request Permission</paper-button>
+          <paper-button raised on-click="_showNotification">Show Notification</paper-button>
+          <paper-button raised on-click="_showNotificationDelayed">Show Delayed 3s</paper-button>
+          <paper-button raised on-click="_showNotificationError">Notification Error</paper-button>
           <div>Last event: [[feedback]]</div>
           <script>
             var ex1 = document.getElementById('ex1');
