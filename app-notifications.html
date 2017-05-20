@@ -6,8 +6,6 @@ Web component for using the notifications API.
 
 @demo demo/index.html
 -->
-<dom-module id="app-notifications">
-
 <script>
   class AppNotifications extends Polymer.Element {
     static get is() { return 'app-notifications'; }
@@ -35,12 +33,13 @@ Web component for using the notifications API.
         }
       };
     }
-    connectedCallback() {
+    constructor() {
+      super();
       if (window.Notification) {
-        this._setAvailable(true);
+        this._setProperty('available', true);
         this.__handlePermission(Notification.permission);
       } else {
-        this._setAvailable(false);
+        this._setProperty('available', false);
       }
     }
     /**
@@ -135,9 +134,9 @@ Web component for using the notifications API.
 
     __handlePermission(permission) {
       if (permission === 'granted') {
-        this._setHasPermission(true);
+        this._setProperty('hasPermission', true);
       } else if (permission === 'denied') {
-        this._setHasPermission(false);
+        this._setProperty('hasPermission', false);
       }
     }
 
@@ -187,4 +186,3 @@ Web component for using the notifications API.
   }
   customElements.define(AppNotifications.is, AppNotifications);
 </script>
-</dom-module>

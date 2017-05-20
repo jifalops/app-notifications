@@ -16,160 +16,163 @@
     <link rel="import" href="../app-notifications.html">
 
     <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles">
-      </style>
+      <style include="demo-pages-shared-styles"></style>
     </custom-style>
   </head>
   <body>
     <div class="vertical-section-container centered">
       <h3>Passing event handlers to show()</h3>
       <demo-snippet>
-        <template is="dom-bind" id="ex1">
-          <app-notifications
-            id="notifications1"
-            available="{{available}}"
-            has-permission="{{hasPermission}}">
-          </app-notifications>
-          <paper-input label="Title" value="{{notification.title}}"></paper-input>
-          <paper-textarea label="Options" value="{{notification.options}}"></paper-textarea>
-          <paper-input label="Duration (ms)" value="{{notification.duration}}"></paper-input>
-          <div>Platform support: [[available]]</div>
-          <div>Permission state: [[hasPermission]]</div>
-          <paper-button raised on-click="_requestPermission">Request Permission</paper-button>
-          <paper-button raised on-click="_showNotification">Show Notification</paper-button>
-          <paper-button raised on-click="_showNotificationDelayed">Show Delayed 3s</paper-button>
-          <paper-button raised on-click="_showNotificationError">Notification Error</paper-button>
-          <div>Last event: [[feedback]]</div>
-          <script>
-            var ex1 = document.getElementById('ex1');
-            ex1.notification = {
-              title: 'title',
-              options: '{ "tag": "app", "body": "body", "icon": "icon.png" }',
-              duration: 0
-            };
+        <dom-bind id="ex1">
+          <template>
+            <app-notifications
+              id="notifications1"
+              available="{{available}}"
+              has-permission="{{hasPermission}}">
+            </app-notifications>
+            <paper-input label="Title" value="{{notification.title}}"></paper-input>
+            <paper-textarea label="Options" value="{{notification.options}}"></paper-textarea>
+            <paper-input label="Duration (ms)" value="{{notification.duration}}"></paper-input>
+            <div>Platform support: [[available]]</div>
+            <div>Permission state: [[hasPermission]]</div>
+            <paper-button raised on-click="_requestPermission">Request Permission</paper-button>
+            <paper-button raised on-click="_showNotification">Show Notification</paper-button>
+            <paper-button raised on-click="_showNotificationDelayed">Show Delayed 3s</paper-button>
+            <paper-button raised on-click="_showNotificationError">Notification Error</paper-button>
+            <div>Last event: [[feedback]]</div>
+            <script>
+              var ex1 = document.getElementById('ex1');
+              ex1.notification = {
+                title: 'title',
+                options: '{ "tag": "app", "body": "body", "icon": "icon.png" }',
+                duration: 0
+              };
 
-            ex1._requestPermission = function() {
-              this.$.notifications1.requestPermission(function(result) {
-                ex1.feedback = 'permission ' + result;
-              });
-            };
-
-            ex1._showNotification = function() {
-              var title = this.notification.title;
-              var options = JSON.parse(this.notification.options);
-              var duration = this.notification.duration;
-              var n = this.$.notifications1.show(title, options, duration,
-                function(e, n) {
-                  ex1.feedback = 'Notification shown';
-                  console.log('show:', e, n);
-                }, function(e, n) {
-                  ex1.feedback = 'Notification clicked';
-                  console.log('click:', e, n);
-                }, function(e, n) {
-                  ex1.feedback = 'Notification closed';
-                  console.log('closed:', e, n);
-                }, function(e, n) {
-                  ex1.feedback = 'Notification error';
-                  console.log('error:', e, n);
+              ex1._requestPermission = function() {
+                this.$.notifications1.requestPermission(function(result) {
+                  ex1.feedback = 'permission ' + result;
                 });
-              if (n && this._autoFail) {
+              };
+
+              ex1._showNotification = function() {
+                var title = this.notification.title;
+                var options = JSON.parse(this.notification.options);
+                var duration = this.notification.duration;
+                var n = this.$.notifications1.show(title, options, duration,
+                  function(e, n) {
+                    ex1.feedback = 'Notification shown';
+                    console.log('show:', e, n);
+                  }, function(e, n) {
+                    ex1.feedback = 'Notification clicked';
+                    console.log('click:', e, n);
+                  }, function(e, n) {
+                    ex1.feedback = 'Notification closed';
+                    console.log('closed:', e, n);
+                  }, function(e, n) {
+                    ex1.feedback = 'Notification error';
+                    console.log('error:', e, n);
+                  });
+                if (n && this._autoFail) {
+                  setTimeout(function() {
+                    n.dispatchEvent(new Event('error'));
+                    this._autoFail = false;
+                  }, 1000);
+                }
+              };
+              ex1._showNotificationDelayed = function() {
                 setTimeout(function() {
-                  n.dispatchEvent(new Event('error'));
-                  this._autoFail = false;
-                }, 1000);
-              }
-            };
-            ex1._showNotificationDelayed = function() {
-              setTimeout(function() {
+                  this._showNotification();
+                }.bind(this), 3000);
+              },
+              ex1._showNotificationError = function() {
+                this._autoFail = true;
                 this._showNotification();
-              }.bind(this), 3000);
-            },
-            ex1._showNotificationError = function() {
-              this._autoFail = true;
-              this._showNotification();
-            }
-          </script>
-        </template>
+              }
+            </script>
+          </template>
+        </dom-bind>
       </demo-snippet>
 
       <h3>Using the event callback attributes</h3>
       <demo-snippet>
-        <template is="dom-bind" id="ex2">
-          <app-notifications
-            id="notifications2"
-            on-permission="_onPermission"
-            on-show="_onShow"
-            on-click="_onClick"
-            on-close="_onClose"
-            on-error="_onError"
-            available="{{available}}"
-            has-permission="{{hasPermission}}">
-          </app-notifications>
-          <paper-input label="Title" value="{{notification.title}}"></paper-input>
-          <paper-textarea label="Options" value="{{notification.options}}"></paper-textarea>
-          <paper-input label="Duration (ms)" value="{{notification.duration}}"></paper-input>
-          <div>Platform support: [[available]]</div>
-          <div>Permission state: [[hasPermission]]</div>
-          <paper-button raised on-tap="_requestPermission">Request Permission</paper-button>
-          <paper-button raised on-tap="_showNotification">Show Notification</paper-button>
-          <paper-button raised on-tap="_showNotificationDelayed">Show Delayed 3s</paper-button>
-          <paper-button raised on-tap="_showNotificationError">Notification Error</paper-button>
-          <div>Last event: [[feedback]]</div>
-          <script>
-            var ex2 = document.getElementById('ex2');
-            ex2.notification = {
-              title: 'title',
-              options: '{ "tag": "app", "body": "body", "icon": "icon.png" }',
-              duration: 0
-            };
+        <dom-bind id="ex2">
+          <template>
+            <app-notifications
+              id="notifications2"
+              on-permission="_onPermission"
+              on-show="_onShow"
+              on-click="_onClick"
+              on-close="_onClose"
+              on-error="_onError"
+              available="{{available}}"
+              has-permission="{{hasPermission}}">
+            </app-notifications>
+            <paper-input label="Title" value="{{notification.title}}"></paper-input>
+            <paper-textarea label="Options" value="{{notification.options}}"></paper-textarea>
+            <paper-input label="Duration (ms)" value="{{notification.duration}}"></paper-input>
+            <div>Platform support: [[available]]</div>
+            <div>Permission state: [[hasPermission]]</div>
+            <paper-button raised on-tap="_requestPermission">Request Permission</paper-button>
+            <paper-button raised on-tap="_showNotification">Show Notification</paper-button>
+            <paper-button raised on-tap="_showNotificationDelayed">Show Delayed 3s</paper-button>
+            <paper-button raised on-tap="_showNotificationError">Notification Error</paper-button>
+            <div>Last event: [[feedback]]</div>
+            <script>
+              var ex2 = document.getElementById('ex2');
+              ex2.notification = {
+                title: 'title',
+                options: '{ "tag": "app", "body": "body", "icon": "icon.png" }',
+                duration: 0
+              };
 
-            ex2._onPermission = function(e, permission) {
-              ex2.feedback = 'permission ' + permission;
-            };
-            ex2._onShow = function(e, n) {
-              ex2.feedback = 'Notification shown';
-              console.log('show:', e, n);
-            };
-            ex2._onClick = function(e, n) {
-              ex2.feedback = 'Notification clicked';
-              console.log('click:', e, n);
-            };
-            ex2._onClose = function(e, n) {
-              ex2.feedback = 'Notification closed';
-              console.log('close:', e, n);
-            };
-            ex2._onError = function(e, n) {
-              ex2.feedback = 'Notification error';
-              console.log('error:', e, n);
-            };
+              ex2._onPermission = function(e, permission) {
+                ex2.feedback = 'permission ' + permission;
+              };
+              ex2._onShow = function(e, n) {
+                ex2.feedback = 'Notification shown';
+                console.log('show:', e, n);
+              };
+              ex2._onClick = function(e, n) {
+                ex2.feedback = 'Notification clicked';
+                console.log('click:', e, n);
+              };
+              ex2._onClose = function(e, n) {
+                ex2.feedback = 'Notification closed';
+                console.log('close:', e, n);
+              };
+              ex2._onError = function(e, n) {
+                ex2.feedback = 'Notification error';
+                console.log('error:', e, n);
+              };
 
-            ex2._requestPermission = function() {
-              this.$.notifications2.requestPermission();
-            };
+              ex2._requestPermission = function() {
+                this.$.notifications2.requestPermission();
+              };
 
-            ex2._showNotification = function() {
-              var title = this.notification.title;
-              var options = JSON.parse(this.notification.options);
-              var duration = this.notification.duration;
-              var n = this.$.notifications2.show(title, options, duration);
-              if (n && this._autoFail) {
+              ex2._showNotification = function() {
+                var title = this.notification.title;
+                var options = JSON.parse(this.notification.options);
+                var duration = this.notification.duration;
+                var n = this.$.notifications2.show(title, options, duration);
+                if (n && this._autoFail) {
+                  setTimeout(function() {
+                    n.dispatchEvent(new Event('error'));
+                    this._autoFail = false;
+                  }, 1000);
+                }
+              };
+              ex2._showNotificationDelayed = function() {
                 setTimeout(function() {
-                  n.dispatchEvent(new Event('error'));
-                  this._autoFail = false;
-                }, 1000);
-              }
-            };
-            ex2._showNotificationDelayed = function() {
-              setTimeout(function() {
+                  this._showNotification();
+                }.bind(this), 3000);
+              };
+              ex2._showNotificationError = function() {
+                this._autoFail = true;
                 this._showNotification();
-              }.bind(this), 3000);
-            };
-            ex2._showNotificationError = function() {
-              this._autoFail = true;
-              this._showNotification();
-            };
-          </script>
-        </template>
+              };
+            </script>
+          </template>
+        </dom-bind>
       </demo-snippet>
     </div>
   </body>
