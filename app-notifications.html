@@ -146,7 +146,7 @@ Web component for using the notifications API.
       options.detail = data;
       if (options.bubbles === undefined) options.bubbles = true;
       if (options.composed === undefined) options.composed = true;
-      context.dispatchEvent(new CustomEvent(name, options));
+      this.dispatchEvent(new CustomEvent(name, options));
     }
 
     /**
