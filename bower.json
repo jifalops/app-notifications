@@ -1,6 +1,8 @@
 {
   "name": "app-notifications",
   "description": "Web component for using the notifications API.",
+  "authors": ["Jacob Phillips (https://github.com/jifalops)"],
+  "license": "MIT",
   "main": "app-notifications.html",
   "keywords": [
     "web-components",
